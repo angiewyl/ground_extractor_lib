@@ -13,11 +13,31 @@ namespace GroundExtraction
 {
 
 typedef pcl::PointXYZL PointT;
-
-Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, const ExtractionSettings settings, std::vector<Label>& m_grid)
+struct Grid
 {
-    template<class DataType>   
-    void Extractor<DataType>::extract(const pcl::PointCloud<PointT> labelledCloud, ExtractionSettings settings, std::vector<Label>& m_grid, std::array<int> count, std::array<int> confidence_l, std::array<int> confidence_p, std::array<int> confidence_z)
+    std::size_t cols;
+    std::size_t rows;
+    float reso;
+    float origin[2]; // (x,y)
+}
+
+std::array<int, grid.rows*grid.cols> count;
+std::array<int, grid.rows*grid.cols> confidence_l;
+std::array<int, grid.rows*grid.cols> confidence_z;
+std::array<int, grid.rows*grid.cols> confidence_p;
+
+
+Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid)
+{
+    template<class DataType>     
+
+    struct Grid grid;
+    Extractor<DataType>::grid_bounds(labelledCloud, &grid, settings);
+    Extractor<DataType>::labels_method(labelledCloud, confidence_l, count, grid);
+    Extractor<DataType>::zaxis_method(labelledCloud, confidence_z, grid, settings);
+    Extractor<DataType>::plane_method(labelledCloud, confidence_p, grid, settings);
+
+    void Extractor<DataType>::extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid, std::array<int> count, std::array<int> confidence_l, std::array<int> confidence_p, std::array<int> confidence_z)
     {
         for (size_t i=0; i<sizeof(count); i++)
         {
@@ -39,7 +59,7 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, const ExtractionSett
         return;
     }
 
-    void Extractor<DataType>::dilate(std::vector<Label>&m_grid, Grid grid)
+    void Extractor<DataType>::dilate(std::vector<Label>& m_grid, struct Grid grid)
     {
         cv::Mat src = cv::Mat(static_cast<int>(grid.rows), static_cast<int>(grid.cols), CV_8U, m_grid, AUTO_STEP);
         cv::Mat opening_dst;
