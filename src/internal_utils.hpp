@@ -24,9 +24,10 @@ public:
 
     void extract(labelledCloud, settings, m_grid, count, confidence_l, confidence_p, confidence_z);
 
-protected:
-    pcl::PointCloud<PointT> labelledCloud;
-    
+    void dilate(m_grid, Grid grid);
+
+// protected:
+//     pcl::PointCloud<PointT> labelledCloud;    
 
 private:
     std::array<int, grid.rows*grid.cols> count;
@@ -41,6 +42,7 @@ private:
         float reso{}
         float origin[2]; // (x,y)
     }
+public:
 };
 
 

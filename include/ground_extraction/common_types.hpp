@@ -26,8 +26,6 @@ private:
     Eigen::Vector3f m_gridOrigin;
 
     
-};
-
 public: 
 
 std::vector<Label> m_grid;
@@ -47,5 +45,9 @@ struct ExtractionSettings
     float confidence_plane;
     float confidence_threshold; 
 };
+    
+};
+
+
 
 }
