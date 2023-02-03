@@ -22,7 +22,7 @@ public:
     
     void plane_method(labelledCloud, confidence_p, grid, settings);
 
-    void extract(labelledCloud, settings);
+    void extract(labelledCloud, settings, m_grid, count, confidence_l, confidence_p, confidence_z);
 
 protected:
     pcl::PointCloud<PointT> labelledCloud;

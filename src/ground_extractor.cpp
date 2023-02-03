@@ -14,7 +14,7 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, ExtractionSettings s
     template<class DataType>   
     void Extractor<DataType>::extract(const pcl::PointCloud<PointT> labelledCloud, ExtractionSettings settings, std::vector<Label>& m_grid, std::array<int> count, std::array<int> confidence_l, std::array<int> confidence_p, std::array<int> confidence_z)
     {
-
+        
     }
     return Grid2D();
 }
