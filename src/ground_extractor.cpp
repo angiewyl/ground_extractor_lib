@@ -33,6 +33,12 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
 
     struct Grid grid;
     Extractor<DataType>::grid_bounds(labelledCloud, &grid, settings);
+
+    std::array<int, grid.rows*grid.cols> count;
+    std::array<int, grid.rows*grid.cols> confidence_l;
+    std::array<int, grid.rows*grid.cols> confidence_z;
+    std::array<int, grid.rows*grid.cols> confidence_p;
+    
     Extractor<DataType>::labels_method(labelledCloud, confidence_l, count, grid);
     Extractor<DataType>::zaxis_method(labelledCloud, confidence_z, grid, settings);
     Extractor<DataType>::plane_method(labelledCloud, confidence_p, grid, settings);
