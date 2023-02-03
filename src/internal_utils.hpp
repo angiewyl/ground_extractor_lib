@@ -14,17 +14,17 @@ class Extractor
 {
 public:
     struct Grid grid;
-    void grid_bounds(labelledCloud, &grid);
+    void grid_bounds(const pcl::PointCloud<PointT> labelledCloud, &grid);
 
-    void labels_method(labelledCloud, confidence_l, count, grid);
+    void labels_method(const pcl::PointCloud<PointT> labelledCloud, std::array<int> confidence_l, std::array<int> count, Grid grid);
 
-    void zaxis_method(labelledCloud, confidence_z, grid, settings);
+    void zaxis_method(const pcl::PointCloud<PointT> labelledCloud, std::array<int> confidence_z, Grid grid, ExtractionSettings settings);
     
-    void plane_method(labelledCloud, confidence_p, grid, settings);
+    void plane_method(const pcl::PointCloud<PointT> labelledCloud, std::array<int> confidence_p, Grid grid, ExtractionSettings settings);
 
-    void extract(labelledCloud, settings, m_grid, count, confidence_l, confidence_p, confidence_z);
+    void extract(const pcl::PointCloud<PointT> labelledCloud, ExtractionSettings settings, std::vector<Label> m_grid, std::array<int> count, std::array<int> confidence_l, std::array<int> confidence_p, std::array<int> confidence_z);
 
-    void dilate(m_grid, Grid grid);
+    void dilate(std::vector<Label> m_grid, Grid grid);
 
 // protected:
 //     pcl::PointCloud<PointT> labelledCloud;    
