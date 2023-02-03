@@ -28,19 +28,6 @@ public:
 // protected:
 //     pcl::PointCloud<PointT> labelledCloud;    
 
-private:
-    std::array<int, grid.rows*grid.cols> count;
-    std::array<int, grid.rows*grid.cols> confidence_l;
-    std::array<int, grid.rows*grid.cols> confidence_z;
-    std::array<int, grid.rows*grid.cols> confidence_p;
-    
-    struct Grid
-    {
-        std::size_t cols;
-        std::size_t rows;
-        float reso;
-        float origin[2]; // (x,y)
-    }
 };
 
 
