@@ -77,20 +77,39 @@ std::vector<std::array<float, 3>> all_grid_points(pcl::PointCloud<PointT> labell
 
 
 template<class DataType>
-void Extractor<DataType>::grid_bounds(pcl::PointCloud<PointT> labelledCloud, Grid *grid)
+void Extractor<DataType>::grid_bounds(pcl::PointCloud<PointT>& labelledCloud, Grid *grid, ExtractionSettings settings)
 {
-    float xmin = numeric_limits<float>::max();
-    float xmax = numeric_limits<float>::lowest(); 
-    float ymin = numeric_limits<float>::max();
-    float ymax = numeric_limits<float>::lowest();
-    for (const auto& point: *labelledCloud)
+    if (settings.map_boundaries != {0,0,0,0})
     {
-        xmin = std::min(xmin, point.x);
-        xmax = std::max(xmax, point.x);
-        ymin = std::min(ymin, point.y);
-        ymax = std::max(ymax, point.y);
+        float xmin = settings.map_boundaries[0];
+        float xmax = settings.map_boundaries[1];
+        float ymin = settings.map_boundaries[2];
+        float ymax = settings.map_boundaries[3];
+
+        pcl::PointCloud<PointT> newmap (new pcl::PointCloud<PointT>);
+        for (const auto& point: *labelledCloud) 
+        {
+            if (point.x>xmin && point.x<xmax && point.y>ymin && point.y<ymax) 
+            {
+                newmap->points.push_back(point);
+            }
+        }
+        labelledCloud = newmap;
     }
-    
+    else
+    { 
+        float xmin = numeric_limits<float>::max();
+        float xmax = numeric_limits<float>::lowest(); 
+        float ymin = numeric_limits<float>::max();
+        float ymax = numeric_limits<float>::lowest();
+        for (const auto& point: *labelledCloud)
+        {
+            xmin = std::min(xmin, point.x);
+            xmax = std::max(xmax, point.x);
+            ymin = std::min(ymin, point.y);
+            ymax = std::max(ymax, point.y);
+        }
+    }
     grid->rows = static_cast<std::size_t>(std::ceil((ymax-ymin)/grid->reso));
     grid->cols = static_cast<std::size_t>(std::ceil((xmax-xmin)/grid->reso));
     grid->origin[0] = xmin; grid->origin[1] = ymax;
