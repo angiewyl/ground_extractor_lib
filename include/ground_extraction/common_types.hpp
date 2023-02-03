@@ -22,10 +22,10 @@ private:
     // std::vector<Label> m_grid;
     std::size_t m_cols{0};
     std::size_t m_rows{0};
-    float m_resolution{0.1f};
+    float m_reso{0.1f};
     Eigen::Vector3f m_gridOrigin;
 
-    
+
 public: 
 
 std::vector<Label> m_grid;
@@ -45,7 +45,12 @@ struct ExtractionSettings
     float confidence_plane;
     float confidence_threshold; 
 };
-    
+
+
+struct ExtractionSettings settings;
+settings.map_boundaries[4] =
+settings.
+
 };
 
 
