@@ -21,12 +21,6 @@ struct Grid
     float origin[2]; // (x,y)
 }
 
-std::array<int, grid.rows*grid.cols> count;
-std::array<int, grid.rows*grid.cols> confidence_l;
-std::array<int, grid.rows*grid.cols> confidence_z;
-std::array<int, grid.rows*grid.cols> confidence_p;
-
-
 Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid)
 {
     template<class DataType>     
