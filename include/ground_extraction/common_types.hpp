@@ -19,7 +19,7 @@ enum class Label : std::uint8_t
 };
 
 private:
-    std::vector<Label> m_grid;
+    // std::vector<Label> m_grid;
     std::size_t m_cols{0};
     std::size_t m_rows{0};
     float m_resolution{0.1f};
@@ -28,16 +28,20 @@ private:
     
 };
 
+public: 
+
+std::vector<Label> m_grid;
+
 struct ExtractionSettings
 {
     float map_boundaries[4];
-    float m_resolution;
+    float m_reso;
     float zaxis_ground;
     float zaxis_ceil;
     double MSEmax;
     float plane_ground;
     float plane_offset;
-    float plane_resolution;
+    float plane_reso;
     float confidence_label;
     float confidence_zaxis;
     float confidence_plane;

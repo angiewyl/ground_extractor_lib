@@ -114,7 +114,7 @@ void Extractor<DataType>::labels_method(pcl::PointCloud<PointT> labelledCloud, s
 }
 
 template<class DataType>
-void Extractor<DataType>::zaxis_method(pcl::PointCloud<PointT> labelledCloud, std::array<int> confidence_z, Grid grid, float ground, float ceil)
+void Extractor<DataType>::zaxis_method(pcl::PointCloud<PointT> labelledCloud, std::array<int> confidence_z, Grid grid, ExtractionSettings settings)
 {
     float zmax;
     float height_grid[grid.cols*grid.rows];
@@ -127,7 +127,7 @@ void Extractor<DataType>::zaxis_method(pcl::PointCloud<PointT> labelledCloud, st
     {
         std::size_t position = grid_position(point.x, point.y, grid.origin, grid.reso, grid.cols);
 
-        if (point.z>ground && point.z < ceil)
+        if (point.z>settings.zaxis_ground && point.z < settings.zaxis_ceil)
         {
             confidence_z[position] += 1;
         }
@@ -137,16 +137,16 @@ void Extractor<DataType>::zaxis_method(pcl::PointCloud<PointT> labelledCloud, st
 }
 
 template<class DataType>    
-void Extractor<DataType>::plane_method(pcl::PointCloud<PointT> labelledCloud, std::array<int> confidence_p, Grid grid, float plane_reso, double MSEmax, float plane_ground, float plane_offset)
+void Extractor<DataType>::plane_method(pcl::PointCloud<PointT> labelledCloud, std::array<int> confidence_p, Grid grid, ExtractionSettings settings)
 {
     std::vector<std::array<double,7>> all_points;
     std::array<double, 4> plane_param = {0,0,0,0};
-    std::size_t plane_rows = static_cast<std::size_t>(grid.rows*grid.reso/plane_reso);
-    std::size_t plane_cols = static_cast<std::size_t>(grid.cols*grid.reso/plane_reso);
+    std::size_t plane_rows = static_cast<std::size_t>(grid.rows*grid.reso/settings.plane_reso);
+    std::size_t plane_cols = static_cast<std::size_t>(grid.cols*grid.reso/settings.plane_reso);
 
     for (std::size_t i=0; i<plane_rows*plane_cols)
     {
-        std::vector<std::array<float, 3>> scaled_xyz = all_grid_points(labelledCloud, i, plane_param, grid.origin, plane_reso, plane_cols);
+        std::vector<std::array<float, 3>> scaled_xyz = all_grid_points(labelledCloud, i, plane_param, grid.origin, settings.plane_reso, plane_cols);
         for (int k=0; k<scaledxyz.size(); k++)
         {
             all_points.push_back({scaledxyz[k][0], scaledxyz[k][1], scaledxyz[k][2], plane_param[0], plane_param[1], plane_param[2], plane_param[3]})       
@@ -166,7 +166,7 @@ void Extractor<DataType>::plane_method(pcl::PointCloud<PointT> labelledCloud, st
                 double c = all_points[k][5];
                 double MSE = all_points[k][6];
                 double point_dist = ((a*x + b*y - z + c)/sqrt(a*a + b*b + 1));
-                if (point_dist > mindist && point_dist < (mindist + offset) && MSE < MSEmax)
+                if (point_dist > settings.plane_ground && point_dist < (settings.plane_ground + settings.plane_offset) && MSE < settings.MSEmax)
                 {
                     confidence_p[i] += 1;
                 }

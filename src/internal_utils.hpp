@@ -13,28 +13,34 @@ typedef pcl::PointXYZL PointT;
 class Extractor
 {
 public:
-    void grid_bounds(labelledCloud, &Grid);
+    struct Grid grid;
+    void grid_bounds(labelledCloud, &grid);
 
-    void labels_method(labelledCloud, confidence_l, count, Grid);
+    void labels_method(labelledCloud, confidence_l, count, grid);
 
-    void zaxis_method(labelledCloud, confidence_z, Grid, zaxis_ground, zaxis_ceil);
+    void zaxis_method(labelledCloud, confidence_z, grid, settings);
     
-    void plane_method(labelledCloud, confidence_p, Grid, plane_reso, MSEmax, plane_ground, plane_offset);
+    void plane_method(labelledCloud, confidence_p, grid, settings);
 
+    void extract(labelledCloud, settings);
 
 protected:
     pcl::PointCloud<PointT> labelledCloud;
+    
+
+private:
     std::array<int, grid.rows*grid.cols> count;
     std::array<int, grid.rows*grid.cols> confidence_l;
     std::array<int, grid.rows*grid.cols> confidence_z;
     std::array<int, grid.rows*grid.cols> confidence_p;
+    
     struct Grid
     {
         std::size_t cols{0};
         std::size_t rows{0};
-        float reso{0.1f};
+        float reso{}
         float origin[2]; // (x,y)
-    };
+    }
 };
 
 
