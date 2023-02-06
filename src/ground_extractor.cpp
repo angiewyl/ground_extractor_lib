@@ -45,7 +45,7 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
     template<class DataType>
     void Extractor<DataType>::extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid, std::array<int> count, std::array<int> confidence_l, std::array<int> confidence_p, std::array<int> confidence_z)
     {
-        for (size_t i=0; i<sizeof(count); i++)
+        for (std::size_t i=0; i<sizeof(count); i++)
         {
             float confidence = (settings.confidence_label*confidence_l[i] + settings.confidence_zaxis*confidence_z[i] + settings.confidence_plane*confidence_p[i])/(settings.confidence_label + settings.confidence_plane + settings.confidence_zaxis);
 
