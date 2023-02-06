@@ -27,9 +27,9 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
     
     template<class DataType>    
     Extractor<DataType>::grid_bounds(labelledCloud, &grid, settings);
-
-    std::array<int, grid.rows*grid.cols> count;
-    std::array<int, grid.rows*grid.cols> confidence_l;
+    std::size_t grid_size = grid.rows*grid.cols;
+    std::array<int, const grid_size> count;
+    std::array<int, > confidence_l;
     std::array<int, grid.rows*grid.cols> confidence_z;
     std::array<int, grid.rows*grid.cols> confidence_p;
     

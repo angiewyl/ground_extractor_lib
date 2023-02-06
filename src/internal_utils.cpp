@@ -111,9 +111,9 @@ void Extractor<DataType>::grid_bounds(const pcl::PointCloud<PointT>& labelledClo
         }
     }
     grid->reso = settings.m_reso;
-    grid->rows = static_cast<std::size_t>(std::ceil((ymax-ymin)/grid->reso));
-    grid->cols = static_cast<std::size_t>(std::ceil((xmax-xmin)/grid->reso));
-    grid->origin[0] = xmin; grid->origin[1] = ymax;
+    grid->rows = static_cast<std::size_t>(std::ceil((ymax-ymin)/(settings.m_reso)));
+    grid->cols = static_cast<std::size_t>(std::ceil((xmax-xmin)/(settings.m_reso)));
+    grid->origin = {xmin, ymax};
 }
 
 template<class DataType>
