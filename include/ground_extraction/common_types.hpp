@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <cstdint>
-#include <Eigen/Dense>
+
 
 namespace GroundExtraction
 {
@@ -10,25 +10,23 @@ namespace GroundExtraction
 // Row Major. Usual robot coordinate frame (x positive towards the top [row 0], y positive to the right)
 class Grid2D
 {
-
-enum class Label : std::uint8_t
+public:
+enum class Labels : std::uint8_t
 {
     Unknown,
     Obstacle,
     Unoccupied
 };
 
-private:
-    // std::vector<Label> m_grid;
-    std::size_t m_cols{0};
-    std::size_t m_rows{0};
-    float m_reso{0.1f};
-    Eigen::Vector3f m_gridOrigin;
+// private:
+//     // std::vector<Label> m_grid;
+//     std::size_t m_cols{0};
+//     std::size_t m_rows{0};
+//     float m_reso{0.1f};
+//     Eigen::Vector3f m_gridOrigin;
 
 
-public: 
-
-std::vector<Label> m_grid;
+std::vector<Labels> m_grid;
 
 struct ExtractionSettings
 {
@@ -47,9 +45,6 @@ struct ExtractionSettings
 };
 
 
-struct ExtractionSettings settings;
-settings.map_boundaries[4] =
-settings.
 
 };
 

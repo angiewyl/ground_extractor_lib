@@ -5,7 +5,7 @@
 namespace GroundExtraction
 {
 
-typedef pcl::PointXYZL PointT;
+using PointT = pcl::PointXYZL;
 
 
 std::size_t grid_position(float x, float y, std::array<float,2> origin, float reso, int cols)
@@ -13,7 +13,7 @@ std::size_t grid_position(float x, float y, std::array<float,2> origin, float re
     return (static_cast<std::size_t>((origin[1]-y)/reso)*cols + static_cast<std::size_t>((x-origin[0])/reso));
 }
 
-void plane_fitting(std::vector<std::array<float,3> xyz, double& plane_param[4])
+void plane_fitting(const std::vector<std::array<float,3>& xyz, double& plane_param[4])
 {
     double XXsum = 0; double XYsum = 0; double YYsum = 0; double XZsum = 0; double YZsum = 0;
     double Xavg = 0; double Yavg = 0; double Zavg = 0;
@@ -44,7 +44,7 @@ void plane_fitting(std::vector<std::array<float,3> xyz, double& plane_param[4])
     return;
 }
 
-void mean_squared_errors(std::vector<std::array<float,3> xyz, double& plane_param[4])
+void mean_squared_errors(const std::vector<std::array<float,3>& xyz, double& plane_param[4])
 {
     for (int i=0; i<xyz.size(); i++)
     {
@@ -54,7 +54,7 @@ void mean_squared_errors(std::vector<std::array<float,3> xyz, double& plane_para
     return;
 }
 
-std::vector<std::array<float, 3>> all_grid_points(const pcl::PointCloud<PointT> labelledCloud, std::size_t position, double& plane_param[4], std::array<float,2> origin, float plane_reso, std::size_t plane_cols)
+std::vector<std::array<float, 3>> all_grid_points(const pcl::PointCloud<PointT>::Ptr labelledCloud, std::size_t position, double& plane_param[4], std::array<float,2> origin, float plane_reso, std::size_t plane_cols)
 {
     std::vector<std::array<float, 3>> grid_points;
     std::vector<std::array<float, 3>> ground_points;
@@ -77,14 +77,14 @@ std::vector<std::array<float, 3>> all_grid_points(const pcl::PointCloud<PointT> 
 
 
 
-void grid_bounds(const pcl::PointCloud<PointT>& labelledCloud, struct Grid *grid, struct ExtractionSettings settings)
+void grid_bounds(pcl::PointCloud<PointT>::Ptr &labelledCloud, GridParameters& parameters, const Grid2D::ExtractionSettings& input)
 {
-    if (settings.map_boundaries != {0,0,0,0})
+    if (input.map_boundaries != {0,0,0,0})
     {
-        float xmin = settings.map_boundaries[0];
-        float xmax = settings.map_boundaries[1];
-        float ymin = settings.map_boundaries[2];
-        float ymax = settings.map_boundaries[3];
+        float xmin = input.map_boundaries[0];
+        float xmax = input.map_boundaries[1];
+        float ymin = input.map_boundaries[2];
+        float ymax = input.map_boundaries[3];
 
         pcl::PointCloud<PointT> newmap (new pcl::PointCloud<PointT>);
         for (const auto& point: *labelledCloud) 
@@ -110,17 +110,18 @@ void grid_bounds(const pcl::PointCloud<PointT>& labelledCloud, struct Grid *grid
             ymax = std::max(ymax, point.y);
         }
     }
-    grid->reso = settings.m_reso;
-    grid->rows = static_cast<std::size_t>(std::ceil((ymax-ymin)/(settings.m_reso)));
-    grid->cols = static_cast<std::size_t>(std::ceil((xmax-xmin)/(settings.m_reso)));
-    grid->origin = {xmin, ymax};
+    parameters.reso = input.m_reso;
+    parameters.rows = static_cast<std::size_t>(std::ceil((ymax-ymin)/(input.m_reso)));
+    parameters.cols = static_cast<std::size_t>(std::ceil((xmax-xmin)/(input.m_reso)));
+    parameters.origin = {xmin, ymax};
 }
 
-void labels_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_l[], int *count[], struct Grid grid)
+template<class T>
+void labels_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_label, T& count, const GridParameters& parameters)
 {
     for (const auto& point: *labelledCloud)
     {
-        std::size_t position = grid_position(point.x, point.y, grid.origin, grid.reso, grid.cols);
+        std::size_t position = grid_position(point.x, point.y, parameters.origin, parameters.reso, parameters.cols);
         
         *count[position] += 1;
         if (point.label == 0)
@@ -131,13 +132,13 @@ void labels_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_
     return;
 }
 
-void zaxis_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_z[], struct Grid grid, struct ExtractionSettings settings)
+void zaxis_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_z, const GridParameters& parameters, const Grid2D::ExtractionSettings& input)
 {
     for (const auto& point: *labelledCloud)
     {
-        std::size_t position = grid_position(point.x, point.y, grid.origin, grid.reso, grid.cols);
+        std::size_t position = grid_position(point.x, point.y, parameters.origin, parameters.reso, parameters.cols);
 
-        if (point.z>settings.zaxis_ground && point.z < settings.zaxis_ceil)
+        if (point.z>input.zaxis_ground && point.z < input.zaxis_ceil)
         {
             *confidence_z[position] += 1;
         }
@@ -147,28 +148,28 @@ void zaxis_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_z
 }
 
 
-void plane_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_p[], struct Grid grid, struct ExtractionSettings settings)
+void plane_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_p, const GridParameters& parameters, const Grid2D::ExtractionSettings& input)
 {
     std::vector<std::array<double,7>> all_points;
     std::array<double, 4> plane_param = {0,0,0,0};
-    std::size_t plane_rows = static_cast<std::size_t>(grid.rows*grid.reso/settings.plane_reso);
-    std::size_t plane_cols = static_cast<std::size_t>(grid.cols*grid.reso/settings.plane_reso);
+    std::size_t plane_rows = static_cast<std::size_t>(parameters.rows*parameters.reso/input.plane_reso);
+    std::size_t plane_cols = static_cast<std::size_t>(parameters.cols*parameters.reso/input.plane_reso);
 
     for (std::size_t i=0; i<plane_rows*plane_cols)
     {
-        std::vector<std::array<float, 3>> scaled_xyz = all_grid_points(labelledCloud, i, plane_param, grid.origin, settings.plane_reso, plane_cols);
+        std::vector<std::array<float, 3>> scaled_xyz = all_grid_points(labelledCloud, i, plane_param, parameters.origin, input.plane_reso, plane_cols);
         for (int k=0; k<scaledxyz.size(); k++)
         {
             all_points.push_back({scaledxyz[k][0], scaledxyz[k][1], scaledxyz[k][2], plane_param[0], plane_param[1], plane_param[2], plane_param[3]})       
         }
     }
-    for (std::size_t i=0; i<grid.rows*grid.cols; i++)
+    for (std::size_t i=0; i<parameters.rows*parameters.cols; i++)
     {
         for (int k=0; k<all_points.size(); k++)
         {
             double x = all_points[k][0];
             double y = all_points[k][1];
-            if (grid_position(point.x, point.y, grid.origin, grid.reso, grid.cols) == i)
+            if (grid_position(point.x, point.y, parameters.origin, parameters.reso, parameters.cols) == i)
             {
                 double z = all_points[k][2];
                 double a = all_points[k][3];
@@ -176,13 +177,44 @@ void plane_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_p
                 double c = all_points[k][5];
                 double MSE = all_points[k][6];
                 double point_dist = ((a*x + b*y - z + c)/sqrt(a*a + b*b + 1));
-                if (point_dist > settings.plane_ground && point_dist < (settings.plane_ground + settings.plane_offset) && MSE < settings.MSEmax)
+                if (point_dist > input.plane_ground && point_dist < (input.plane_ground + input.plane_offset) && MSE < input.MSEmax)
                 {
                     *confidence_p[i] += 1;
                 }
             }
         }
     }
+}
+
+void extract(const pcl::PointCloud<PointT>::Ptr labelledCloud, const Grid2D::ExtractionSettings& input, std::vector<Grid2D::Labels>& m_grid, const T& count, const T& confidence_l, const T& confidence_p, const T& confidence_z)
+{
+    for (std::size_t i=0; i<sizeof(count); i++)
+    {
+        float confidence = (input.confidence_label*confidence_l[i] + input.confidence_zaxis*confidence_z[i] + input.confidence_plane*confidence_p[i])/(input.confidence_label + input.confidence_plane + input.confidence_zaxis);
+
+        if (count[i] == 0)
+        {
+            m_grid.push_back(Unknown);
+        }
+        else if (confidence <= input.confidence_threshold)
+        {
+            m_grid.push_back(Unoccupied);
+        }
+        else 
+        {
+            m_grid.push_back(Obstacle);
+        }
+    }
+    return;
+}
+
+void dilate(std::vector<Grid2D::Labels>& m_grid, const GridParameters& parameters)
+{
+    cv::Mat src = cv::Mat(static_cast<int>(parameters.rows), static_cast<int>(parameters.cols), CV_8U, m_grid, AUTO_STEP);
+    cv::Mat opening_dst;
+    cv::morphologyEx(src, opening_dst, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(2,2)));
+    src = opening_dst;
+    return;
 }
 
 }

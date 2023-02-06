@@ -11,7 +11,7 @@ add_library(dash_labelled_ground_extraction
 )
 add_library(dash::labelled_ground_extraction ALIAS dash_labelled_ground_extraction)
 
-target_link_libraries(dash_labelled_ground_extraction=
+target_link_libraries(dash_labelled_ground_extraction
 PUBLIC
   ${PCL_LIBRARIES}
   ${OpenCV_LIBS}
@@ -25,3 +25,5 @@ PUBLIC
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
+
+add_subdirectory(example)

@@ -7,23 +7,36 @@
 namespace GroundExtraction
 {
 
-typedef pcl::PointXYZL PointT;
+using PointT = pcl::PointXYZL;
+struct GridParameters
+{
+    std::size_t cols;
+    std::size_t rows;
+    float reso;
+    float origin[2]; // (x,y)
+};
+
+void grid_bounds(pcl::PointCloud<PointT>::Ptr &labelledCloud, GridParameters& parameters, const Grid2D::ExtractionSettings& input);
+
+template<class T>
+void labels_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_label, T& count, const GridParameters& parameters);
+
+template<class T>
+void zaxis_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_z, const GridParameters& parameters, const Grid2D::ExtractionSettings& input);
+
+template<class T>
+void plane_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_p, const GridParameters& parameters, const Grid2D::ExtractionSettings& input);
+
+template<class T>
+void extract(const pcl::PointCloud<PointT>::Ptr labelledCloud, const Grid2D::ExtractionSettings& input, std::vector<Grid2D::Labels>& m_grid, const T& count, const T& confidence_l, const T& confidence_p, const T& confidence_z);
+
+void dilate(std::vector<Grid2D::Labels>& m_grid, const GridParameters& parameters);
 
 
-void grid_bounds(const pcl::PointCloud<PointT>& labelledCloud, struct Grid *grid, struct ExtractionSettings settings);
 
-void labels_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_l[], int *count[], struct Grid grid);
-
-void zaxis_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_z[], struct Grid grid, struct ExtractionSettings settings);
-
-void plane_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_p[], struct Grid grid, struct ExtractionSettings settings);
-
-void extract(const pcl::PointCloud<PointT> labelledCloud, ExtractionSettings settings, std::vector<Label> m_grid, int count[], int confidence_l[], int confidence_p[], int confidence_z[]);
-
-void dilate(std::vector<Label> m_grid, Grid grid);
 
 // protected:
-//     pcl::PointCloud<PointT> labelledCloud;    
+//     pcl::PointCloud<PointT>::Ptr labelledCloud;    
 
 
 }
