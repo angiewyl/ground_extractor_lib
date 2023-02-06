@@ -76,8 +76,8 @@ std::vector<std::array<float, 3>> all_grid_points(const pcl::PointCloud<PointT> 
 }
 
 
-template<class DataType>
-void Extractor<DataType>::grid_bounds(const pcl::PointCloud<PointT>& labelledCloud, struct Grid *grid, struct ExtractionSettings settings)
+
+void grid_bounds(const pcl::PointCloud<PointT>& labelledCloud, struct Grid *grid, struct ExtractionSettings settings)
 {
     if (settings.map_boundaries != {0,0,0,0})
     {
@@ -116,47 +116,38 @@ void Extractor<DataType>::grid_bounds(const pcl::PointCloud<PointT>& labelledClo
     grid->origin = {xmin, ymax};
 }
 
-template<class DataType>
-void Extractor<DataType>::labels_method(const pcl::PointCloud<PointT> labelledCloud, std::array<int>& confidence_l, std::array<int>& count, struct Grid grid)
+void labels_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_l[], int *count[], struct Grid grid)
 {
     for (const auto& point: *labelledCloud)
     {
         std::size_t position = grid_position(point.x, point.y, grid.origin, grid.reso, grid.cols);
         
-        count[position] += 1;
+        *count[position] += 1;
         if (point.label == 0)
         {
-            confidence_l[position] += 1;
+            *confidence_l[position] += 1;
         }
     }
     return;
 }
 
-template<class DataType>
-void Extractor<DataType>::zaxis_method(const pcl::PointCloud<PointT> labelledCloud, std::array<int>& confidence_z, struct Grid grid, struct ExtractionSettings settings)
+void zaxis_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_z[], struct Grid grid, struct ExtractionSettings settings)
 {
-    float zmax;
-    float height_grid[grid.cols*grid.rows];
-    for (int i=0; i<grid.cols*grid.rows; i++)
-    {
-        height_grid[i] = -100;
-    }
-
     for (const auto& point: *labelledCloud)
     {
         std::size_t position = grid_position(point.x, point.y, grid.origin, grid.reso, grid.cols);
 
         if (point.z>settings.zaxis_ground && point.z < settings.zaxis_ceil)
         {
-            confidence_z[position] += 1;
+            *confidence_z[position] += 1;
         }
     }
 
     return;
 }
 
-template<class DataType>    
-void Extractor<DataType>::plane_method(const pcl::PointCloud<PointT> labelledCloud, std::array<int>& confidence_p, struct Grid grid, struct ExtractionSettings settings)
+
+void plane_method(const pcl::PointCloud<PointT> labelledCloud, int *confidence_p[], struct Grid grid, struct ExtractionSettings settings)
 {
     std::vector<std::array<double,7>> all_points;
     std::array<double, 4> plane_param = {0,0,0,0};
@@ -187,7 +178,7 @@ void Extractor<DataType>::plane_method(const pcl::PointCloud<PointT> labelledClo
                 double point_dist = ((a*x + b*y - z + c)/sqrt(a*a + b*b + 1));
                 if (point_dist > settings.plane_ground && point_dist < (settings.plane_ground + settings.plane_offset) && MSE < settings.MSEmax)
                 {
-                    confidence_p[i] += 1;
+                    *confidence_p[i] += 1;
                 }
             }
         }

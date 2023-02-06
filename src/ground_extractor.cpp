@@ -24,26 +24,20 @@ struct Grid
 Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid)
 {
     struct Grid grid;
+      
+    grid_bounds(labelledCloud, &grid, settings);
+    const std::size_t grid_size = grid.rows*grid.cols;
     
-    template<class DataType>    
-    Extractor<DataType>::grid_bounds(labelledCloud, &grid, settings);
-    std::size_t grid_size = grid.rows*grid.cols;
-    std::array<int, const grid_size> count;
-    std::array<int, > confidence_l;
-    std::array<int, grid.rows*grid.cols> confidence_z;
-    std::array<int, grid.rows*grid.cols> confidence_p;
+    int count[grid_size];
+    int confidence_l[grid_size];
+    int confidence_z[grid_size];
+    int confidence_p[grid_size];
+
+    labels_method(labelledCloud, &confidence_l, &count, grid);
+    zaxis_method(labelledCloud, &confidence_z, grid, settings);
+    plane_method(labelledCloud, &confidence_p, grid, settings);
     
-    template<class DataType>    
-    Extractor<DataType>::labels_method(labelledCloud, confidence_l, count, grid);
-    
-    template<class DataType>    
-    Extractor<DataType>::zaxis_method(labelledCloud, confidence_z, grid, settings);
-    
-    template<class DataType>    
-    Extractor<DataType>::plane_method(labelledCloud, confidence_p, grid, settings);
-    
-    template<class DataType>
-    void Extractor<DataType>::extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid, std::array<int> count, std::array<int> confidence_l, std::array<int> confidence_p, std::array<int> confidence_z)
+    void extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid, int count[], int confidence_l[], int confidence_p[], int confidence_z[])
     {
         for (std::size_t i=0; i<sizeof(count); i++)
         {
@@ -53,7 +47,7 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
             {
                 m_grid.push_back(Unknown);
             }
-            els e if (confidence <= settings.confidence_threshold)
+            else if (confidence <= settings.confidence_threshold)
             {
                 m_grid.push_back(Unoccupied);
             }
@@ -65,10 +59,9 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
         return;
     }
 
-    template<class DataType>
-    Extractor<DataType>::extract(labelledCloud, settings, m_grid, count, confidence_l, confidence_p, confidence_z)
+    extract(labelledCloud, settings, m_grid, count, confidence_l, confidence_p, confidence_z)
     
-    void Extractor<DataType>::dilate(std::vector<Label>& m_grid, struct Grid grid)
+    void dilate(std::vector<Label>& m_grid, struct Grid grid)
     {
         cv::Mat src = cv::Mat(static_cast<int>(grid.rows), static_cast<int>(grid.cols), CV_8U, m_grid, AUTO_STEP);
         cv::Mat opening_dst;
@@ -77,8 +70,7 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
         return;
     } 
 
-    template<class DataType>
-    Extractor<DataType>::dilate(m_grid, grid)
+    dilate(m_grid, grid)
 
     return Grid2D();
 }
