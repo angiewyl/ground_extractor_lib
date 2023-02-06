@@ -23,9 +23,9 @@ struct Grid
 
 Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid)
 {
-    template<class DataType>     
-
     struct Grid grid;
+    
+    template<class DataType>    
     Extractor<DataType>::grid_bounds(labelledCloud, &grid, settings);
 
     std::array<int, grid.rows*grid.cols> count;
@@ -33,10 +33,16 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
     std::array<int, grid.rows*grid.cols> confidence_z;
     std::array<int, grid.rows*grid.cols> confidence_p;
     
+    template<class DataType>    
     Extractor<DataType>::labels_method(labelledCloud, confidence_l, count, grid);
+    
+    template<class DataType>    
     Extractor<DataType>::zaxis_method(labelledCloud, confidence_z, grid, settings);
+    
+    template<class DataType>    
     Extractor<DataType>::plane_method(labelledCloud, confidence_p, grid, settings);
-
+    
+    template<class DataType>
     void Extractor<DataType>::extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSettings settings, std::vector<Label>& m_grid, std::array<int> count, std::array<int> confidence_l, std::array<int> confidence_p, std::array<int> confidence_z)
     {
         for (size_t i=0; i<sizeof(count); i++)
@@ -59,6 +65,9 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
         return;
     }
 
+    template<class DataType>
+    Extractor<DataType>::extract(labelledCloud, settings, m_grid, count, confidence_l, confidence_p, confidence_z)
+    
     void Extractor<DataType>::dilate(std::vector<Label>& m_grid, struct Grid grid)
     {
         cv::Mat src = cv::Mat(static_cast<int>(grid.rows), static_cast<int>(grid.cols), CV_8U, m_grid, AUTO_STEP);
@@ -67,6 +76,10 @@ Grid2D Extract(const pcl::PointCloud<PointT> labelledCloud, struct ExtractionSet
         src = opening_dst;
         return;
     } 
+
+    template<class DataType>
+    Extractor<DataType>::dilate(m_grid, grid)
+
     return Grid2D();
 }
 

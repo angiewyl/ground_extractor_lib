@@ -115,8 +115,6 @@ void Extractor<DataType>::grid_bounds(const pcl::PointCloud<PointT>& labelledClo
     grid->cols = static_cast<std::size_t>(std::ceil((xmax-xmin)/grid->reso));
     grid->origin[0] = xmin; grid->origin[1] = ymax;
 }
-Extractor::Grid grid;
-Extractor<DataType>::grid_bounds(labelledCloud, &grid, settings);
 
 template<class DataType>
 void Extractor<DataType>::labels_method(const pcl::PointCloud<PointT> labelledCloud, std::array<int>& confidence_l, std::array<int>& count, struct Grid grid)
@@ -195,10 +193,6 @@ void Extractor<DataType>::plane_method(const pcl::PointCloud<PointT> labelledClo
         }
     }
 }
-
-Extractor<DataType>::labels_method(labelledCloud, confidence_l, count, grid);
-Extractor<DataType>::zaxis_method(labelledCloud, confidence_z, grid, settings);
-Extractor<DataType>::labels_method(labelledCloud, confidence_p, grid, settings);
 
 }
 
