@@ -16,27 +16,27 @@ struct GridParameters
     float origin[2]; // (x,y)
 };
 
-void grid_bounds(pcl::PointCloud<PointT>::Ptr &labelledCloud, GridParameters& parameters, const Grid2D::ExtractionSettings& input);
+void defineGridBounds(pcl::PointCloud<PointT>::Ptr &labelled_cloud, GridParameters& grid_parameters, const Grid2D::ExtractionSettings& input_param);
 
 template<class T>
-void labels_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_label, T& count, const GridParameters& parameters);
+void LabelMethod(const pcl::PointCloud<PointT>::Ptr labelled_cloud, T& num_obstacle_labels, T& num_points, const GridParameters& grid_parameters);
 
 template<class T>
-void zaxis_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_z, const GridParameters& parameters, const Grid2D::ExtractionSettings& input);
+void ZaxisMethod(const pcl::PointCloud<PointT>::Ptr labelled_cloud, T& num_obstacle_zaxis, const GridParameters& grid_parameters, const Grid2D::ExtractionSettings& input_param);
 
 template<class T>
-void plane_method(const pcl::PointCloud<PointT>::Ptr labelledCloud, T& confidence_p, const GridParameters& parameters, const Grid2D::ExtractionSettings& input);
+void PlaneMethod(const pcl::PointCloud<PointT>::Ptr labelled_cloud, T& num_obstacle_plane, const GridParameters& grid_parameters, const Grid2D::ExtractionSettings& input_param);
 
 template<class T>
-void extract(const pcl::PointCloud<PointT>::Ptr labelledCloud, const Grid2D::ExtractionSettings& input, std::vector<Grid2D::Labels>& m_grid, const T& count, const T& confidence_l, const T& confidence_p, const T& confidence_z);
+void ConfidenceExtraction(const pcl::PointCloud<PointT>::Ptr labelled_cloud, const Grid2D::ExtractionSettings& input_param, std::vector<Grid2D::Labels>& m_grid, const T& num_points, const T& num_obstacle_labels, const T& num_obstacle_plane, const T& num_obstacle_zaxis);
 
-void dilate(std::vector<Grid2D::Labels>& m_grid, const GridParameters& parameters);
+void GridDilation(std::vector<Grid2D::Labels>& m_grid, const GridParameters& grid_parameters);
 
 
 
 
 // protected:
-//     pcl::PointCloud<PointT>::Ptr labelledCloud;    
+//     pcl::PointCloud<PointT>::Ptr labelled_cloud;    
 
 
 }

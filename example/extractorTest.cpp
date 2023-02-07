@@ -1,4 +1,5 @@
 #include "ground_extraction/ground_extractor.hpp"
+#include "ground_extraction/common_types.hpp"
 
 #include <chrono>
 #include <cstddef>
@@ -25,51 +26,51 @@ std::string filename = "Galen_lvl5";
 namespace GroundExtraction
 {
 
-void gridconversion(const std::vector<Grid2D::Labels>& m_grid, pcl::PointCloud<PointT>::Ptr &groundmap, pcl::PointCloud<PointT>::Ptr &obstaclemap, const pcl::PointCloud<PointT>::Ptr labelledCloud, std::string filename, const Grid2D::ExtractionSettings& input)
+void GridConversion(const std::vector<Grid2D::Labels>& m_grid, pcl::PointCloud<PointT>::Ptr &ground_map, pcl::PointCloud<PointT>::Ptr &obstacle_map, const pcl::PointCloud<PointT>::Ptr labelled_cloud, std::string filename, const Grid2D::ExtractionSettings& input_param)
 {               
-    float xmin = std::numeric_limits<float>::max(); 
-    float xmax = std::numeric_limits<float>::lowest();
-    float ymin = std::numeric_limits<float>::max();
-    float ymax = std::numeric_limits<float>::lowest();
-    float reso = input.m_reso;
-    if (input.map_boundaries[0] == 0 || input.map_boundaries[1] == 0 || input.map_boundaries[2] == 0 || input.map_boundaries[3] == 0)
+    float x_min = std::numeric_limits<float>::max(); 
+    float x_max = std::numeric_limits<float>::lowest();
+    float y_min = std::numeric_limits<float>::max();
+    float y_max = std::numeric_limits<float>::lowest();
+    float reso = input_param.m_reso;
+    if (input_param.map_boundaries[0] == 0 || input_param.map_boundaries[1] == 0 || input_param.map_boundaries[2] == 0 || input_param.map_boundaries[3] == 0)
     {
-        xmin = input.map_boundaries[0];
-        xmax = input.map_boundaries[1];
-        ymin = input.map_boundaries[2];
-        ymax = input.map_boundaries[3];
+        x_min = input_param.map_boundaries[0];
+        x_max = input_param.map_boundaries[1];
+        y_min = input_param.map_boundaries[2];
+        y_max = input_param.map_boundaries[3];
     }
     else
     {
-        for (const auto& point: *labelledCloud)   
+        for (const auto& point: *labelled_cloud)   
         {
-            xmin = std::min(xmin, point.x);
-            xmax = std::max(xmax, point.x);
-            ymin = std::min(ymin, point.y);
-            ymax = std::max(ymax, point.y);                
+            x_min = std::min(x_min, point.x);
+            x_max = std::max(x_max, point.x);
+            y_min = std::min(y_min, point.y);
+            y_max = std::max(y_max, point.y);                
         }
     }
-    std::size_t cols = static_cast<std::size_t>(std::ceil((xmax-xmin)/(reso)));
+    std::size_t cols = static_cast<std::size_t>(std::ceil((x_max-x_min)/(reso)));
     for (std::size_t i=0; i<m_grid.size(); i++)
     {
         PointT ground, obstacle;
         if (m_grid[i] == Grid2D::Labels::Unoccupied)
         {
             std::size_t y = static_cast<std::size_t>(floor(i/cols));
-            ground.y = ymax - (y+0.5)*reso;
-            ground.x = ((i-y*cols)+0.5)*reso + xmin;
-            ground.z = input.zaxis_ceil;
+            ground.y = y_max - (y+0.5)*reso;
+            ground.x = ((i-y*cols)+0.5)*reso + x_min;
+            ground.z = input_param.zaxis_ceil;
             ground.label = 1;
-            groundmap->points.push_back(ground);
+            ground_map->points.push_back(ground);
         }
         else if (m_grid[i] == Grid2D::Labels::Obstacle)
         {
             std::size_t y = static_cast<std::size_t>(floor(i/cols));
-            obstacle.y = ymax - (y+0.5)*reso;
-            obstacle.x = ((i-y*cols)+0.5)*reso + xmin;
-            obstacle.z = input.zaxis_ceil;
+            obstacle.y = y_max - (y+0.5)*reso;
+            obstacle.x = ((i-y*cols)+0.5)*reso + x_min;
+            obstacle.z = input_param.zaxis_ceil;
             obstacle.label = 0;
-            obstaclemap->points.push_back(obstacle);
+            obstacle_map->points.push_back(obstacle);
         }
     }
 }
@@ -85,15 +86,15 @@ static void pointpickingEventOccured(const pcl::visualization::PointPickingEvent
     event.getPoint(x, y, z);
     std::cout << "[INOF] Point coordinate ( " << x << ", " << y << ", " << z << ")" << std::endl;
 }
-pcl::visualization::PCLVisualizer::Ptr gridVis (std::string filename, pcl::PointCloud<PointT>::ConstPtr labelledCloud, pcl::PointCloud<PointT>::ConstPtr groundmap, pcl::PointCloud<PointT>::ConstPtr obstaclemap)
+pcl::visualization::PCLVisualizer::Ptr GridVis (std::string filename, pcl::PointCloud<PointT>::ConstPtr labelled_cloud, pcl::PointCloud<PointT>::ConstPtr ground_map, pcl::PointCloud<PointT>::ConstPtr obstacle_map)
 {
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     viewer->setBackgroundColor (0, 0, 0);
-    viewer->addPointCloud<PointT> (labelledCloud, filename+"cloud");
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> blue_color(obstaclemap, 0, 0, 255);
-    viewer->addPointCloud<PointT> (obstaclemap, blue_color, filename+"_obstacle");
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> red_color(groundmap, 255, 0, 0);
-    viewer->addPointCloud<PointT> (groundmap, red_color, filename+"_ground");
+    viewer->addPointCloud<PointT> (labelled_cloud, filename+"cloud");
+    pcl::visualization::PointCloudColorHandlerCustom<PointT> blue_color(obstacle_map, 0, 0, 255);
+    viewer->addPointCloud<PointT> (obstacle_map, blue_color, filename+"_obstacle");
+    pcl::visualization::PointCloudColorHandlerCustom<PointT> red_color(ground_map, 255, 0, 0);
+    viewer->addPointCloud<PointT> (ground_map, red_color, filename+"_ground");
     viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, filename+"_ground");
     viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, filename+"_obstacle");
     viewer->addCoordinateSystem (1.0,"cloud");
@@ -141,18 +142,21 @@ pcl::visualization::PCLVisualizer::Ptr interactionCustomizationVis ()
     return (viewer);
 }
 
+} // namespace GroundExtraction
+
+using namespace GroundExtraction;
 
 int main(int argc, char** argv)
-{
+{    
     std::vector<Grid2D::Labels> m_grid;
-    pcl::PointCloud<PointT>::Ptr labelledCloud (new pcl::PointCloud<PointT>);
-    if (pcl::io::loadPCDFile<PointT> (filename + ".pcd", *labelledCloud) == -1)
+    pcl::PointCloud<PointT>::Ptr labelled_cloud (new pcl::PointCloud<PointT>);
+    if (pcl::io::loadPCDFile<PointT> (filename + ".pcd", *labelled_cloud) == -1)
     {
         PCL_ERROR ("Couldn't read file \n");
         return (-1);
     }
     
-    GroundExtraction::Grid2D::ExtractionSettings input;
+    Grid2D::ExtractionSettings input_param;
     ifstream settingsF("/home/joel/ground_extration_lib/example/settings.json");
     if (!settingsF.is_open()) 
     {
@@ -160,31 +164,32 @@ int main(int argc, char** argv)
     }
     nlohmann::json settingsJson = nlohmann::json::parse(settingsF);
     
-    input.map_boundaries[0] = settingsJson["grid_parameters"][0];
-    input.map_boundaries[1] = settingsJson["grid_parameters"][1];
-    input.map_boundaries[2] = settingsJson["grid_parameters"][2];
-    input.map_boundaries[3] = settingsJson["grid_parameters"][3];
-    input.m_reso = settingsJson["grid_resolution"].get<float>();
-    input.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
-    input.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();
-    input.MSEmax = settingsJson["plane_MSE_threshold"].get<double>();
-    input.plane_ground = settingsJson["distance_from_plane"].get<float>();
-    input.plane_offset = settingsJson["plane_offset"].get<float>();
-    input.plane_reso = settingsJson["plane_resolution"].get<float>();
-    input.confidence_label = settingsJson["confidence_label"].get<float>();
-    input.confidence_zaxis = settingsJson["confidence_zaxis"].get<float>();   
-    input.confidence_plane = settingsJson["confidence_plane"].get<float>();
-    input.confidence_threshold = settingsJson["probability_threshold"].get<float>();
+    input_param.map_boundaries[0] = settingsJson["grid_parameters"][0];
+    input_param.map_boundaries[1] = settingsJson["grid_parameters"][1];
+    input_param.map_boundaries[2] = settingsJson["grid_parameters"][2];
+    input_param.map_boundaries[3] = settingsJson["grid_parameters"][3];
+    input_param.m_reso = settingsJson["grid_resolution"].get<float>();
+    input_param.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
+    input_param.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();
+    input_param.MSEmax = settingsJson["plane_MSE_threshold"].get<double>();
+    input_param.plane_ground = settingsJson["distance_from_plane"].get<float>();
+    input_param.plane_offset = settingsJson["plane_offset"].get<float>();
+    input_param.plane_reso = settingsJson["plane_resolution"].get<float>();
+    input_param.confidence_label = settingsJson["confidence_label"].get<float>();
+    input_param.confidence_zaxis = settingsJson["confidence_zaxis"].get<float>();   
+    input_param.confidence_plane = settingsJson["confidence_plane"].get<float>();
+    input_param.confidence_threshold = settingsJson["probability_threshold"].get<float>();
     
-    GroundExtraction::Extract(labelledCloud, input, m_grid);
+    
+    Extract(labelled_cloud, input_param, m_grid);
 
 
-    pcl::PointCloud<PointT>::Ptr groundmap (new pcl::PointCloud<PointT>);
-    pcl::PointCloud<PointT>::Ptr obstaclemap (new pcl::PointCloud<PointT>);
-    gridconversion(m_grid, groundmap, obstaclemap, labelledCloud, filename, input);
+    pcl::PointCloud<PointT>::Ptr ground_map (new pcl::PointCloud<PointT>);
+    pcl::PointCloud<PointT>::Ptr obstacle_map (new pcl::PointCloud<PointT>);
+    GridConversion(m_grid, ground_map, obstacle_map, labelled_cloud, filename, input_param);
     
     pcl::visualization::PCLVisualizer::Ptr viewer;
-    viewer = gridVis(filename, labelledCloud, groundmap, obstaclemap);
+    viewer = GridVis(filename, labelled_cloud, ground_map, obstacle_map);
 
     int coordinate;
     cout << "See point coordinates? (Yes: 1, No: 0): ";
@@ -202,4 +207,3 @@ int main(int argc, char** argv)
     return 0;
 }
 
-}

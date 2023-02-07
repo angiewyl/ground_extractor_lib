@@ -14,7 +14,7 @@ using PointT = pcl::PointXYZL;
 
 
 
-Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelledCloud, Grid2D::ExtractionSettings input, std::vector<Grid2D::Labels>& m_grid);
+Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, Grid2D::ExtractionSettings input_param, std::vector<Grid2D::Labels>& m_grid);
 
 
 

@@ -14,29 +14,24 @@ namespace GroundExtraction
 
 typedef pcl::PointXYZL PointT;
 
-Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelledCloud, Grid2D::ExtractionSettings input, std::vector<Grid2D::Labels>& m_grid)
+Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const Grid2D::ExtractionSettings& input_param, std::vector<Grid2D::Labels>& m_grid)
 {
-    GridParameters parameters;
+    GridParameters grid_parameters;
       
-    grid_bounds(labelledCloud, parameters, input);
-    std::size_t grid_size = parameters.rows*parameters.cols;
-    int *count = new int[grid_size];
-    int *confidence_l = new int[grid_size];
-    int *confidence_p = new int[grid_size];
-    int *confidence_z = new int[grid_size];
-    
-    // std::array<int> count;
-    // std::array<int> confidence_l;
-    // std::array<int> confidence_p;
-    // std::array<int, grid_size> confidence_z; 
+    defineGridBounds(labelled_cloud, grid_parameters, input_param);
+    std::size_t grid_size = grid_parameters.rows*grid_parameters.cols;
+    int *num_points = new int[grid_size];
+    int *num_obstacle_labels = new int[grid_size];
+    int *num_obstacle_plane = new int[grid_size];
+    int *num_obstacle_zaxis = new int[grid_size];
 
-    labels_method(labelledCloud, confidence_l, count, parameters);
-    zaxis_method(labelledCloud, confidence_z, parameters, input);
-    plane_method(labelledCloud, confidence_p, parameters, input);
+    LabelMethod(labelled_cloud, num_obstacle_labels, num_points, grid_parameters);
+    ZaxisMethod(labelled_cloud, num_obstacle_zaxis, grid_parameters, input_param);
+    PlaneMethod(labelled_cloud, num_obstacle_plane, grid_parameters, input_param);
 
-    extract(labelledCloud, input, m_grid, count, confidence_l, confidence_p, confidence_z);
+    ConfidenceExtraction(labelled_cloud, input_param, m_grid, num_points, num_obstacle_labels, num_obstacle_plane, num_obstacle_zaxis);
     
-    dilate(m_grid, parameters);
+    GridDilation(m_grid, grid_parameters);
 
     return Grid2D();
 }
