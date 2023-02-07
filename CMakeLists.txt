@@ -8,6 +8,7 @@ find_package(OpenCV CONFIG REQUIRED)
 
 add_library(dash_labelled_ground_extraction
   src/ground_extractor.cpp
+  src/internal_utils.cpp
 )
 add_library(dash::labelled_ground_extraction ALIAS dash_labelled_ground_extraction)
 

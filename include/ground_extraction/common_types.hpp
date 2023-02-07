@@ -18,14 +18,6 @@ enum class Labels : std::uint8_t
     Unoccupied
 };
 
-// private:
-//     // std::vector<Label> m_grid;
-//     std::size_t m_cols{0};
-//     std::size_t m_rows{0};
-//     float m_reso{0.1f};
-//     Eigen::Vector3f m_gridOrigin;
-
-
 std::vector<Labels> m_grid;
 
 struct ExtractionSettings
@@ -44,7 +36,7 @@ struct ExtractionSettings
     float confidence_threshold; 
 };
 
-
+ExtractionSettings input_param;
 
 };
 

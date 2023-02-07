@@ -5,7 +5,7 @@ find_package(PCL REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 add_executable(ground_extractor
-  extractorTest.cpp
+  extractor_test.cpp
 )
 target_link_libraries(ground_extractor
   dash::labelled_ground_extraction
