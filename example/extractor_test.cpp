@@ -19,8 +19,8 @@ unsigned int text_id = 0;
 using PointT = pcl::PointXYZL;
 
 // std::string filename = "Pixel_Lvl3_2609";
-std::string filename = "Galen_lvl5";
-// std::string filename = "pixel_park2_20220103";
+// std::string filename = "Galen_lvl5";
+std::string filename = "pixel_park2_20220103";
 
 namespace GroundExtraction
 {
@@ -192,13 +192,13 @@ int main(int argc, char** argv)
     pcl::visualization::PCLVisualizer::Ptr viewer;
     viewer = GridVis(filename, labelled_cloud, ground_map, obstacle_map);
 
-    int coordinate;
-    cout << "See point coordinates? (Yes: 1, No: 0): ";
-    cin >> coordinate;
-    if (coordinate == 1)
-    {
-        viewer->registerPointPickingCallback(pointpickingEventOccured, (void*)&viewer);
-    }
+    // int coordinate;
+    // cout << "See point coordinates? (Yes: 1, No: 0): ";
+    // cin >> coordinate;
+    // if (coordinate == 1)
+    // {
+    //     viewer->registerPointPickingCallback(pointpickingEventOccured, (void*)&viewer);
+    // }
 
     while (!viewer->wasStopped ())
     {

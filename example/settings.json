@@ -1,14 +1,14 @@
 {
-    "grid_parameters" : [-55, 60, -23, 25],
+    "grid_parameters" : [0,0,0,0],
     "grid_resolution" : 0.16,
-    "zaxis_max_height" : 2,
-    "zaxis_ground_height" : 1.5 ,
+    "zaxis_max_height" : 1,
+    "zaxis_ground_height" : 0,
     "plane_MSE_threshold" : 0.3,
-    "distance_from_plane" : 0.2,
-    "plane_offset" : 1.5,
+    "distance_from_plane" : 0.1,
+    "plane_offset" : 1,
     "plane_resolution" : 0.8,
     "confidence_label" : 1,
-    "confidence_zaxis" : 1,
-    "confidence_plane" : 1,
+    "confidence_zaxis" : 3,
+    "confidence_plane" : 2,
     "probability_threshold" : 2.5
 }

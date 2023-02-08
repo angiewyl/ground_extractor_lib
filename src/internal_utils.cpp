@@ -138,8 +138,8 @@ void PlaneMethod(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::vector<s
     // x y z a b c MSE
     std::vector<std::array<float, 7>> all_points;
     // std::array<float, 4> plane_param; // TODO: change everything to float
-    std::size_t plane_rows = static_cast<std::size_t>(m_parameters.rows*m_parameters.reso/input_param.plane_resolution);
-    std::size_t plane_cols = static_cast<std::size_t>(m_parameters.cols*m_parameters.reso/input_param.plane_resolution);
+    std::size_t plane_rows = static_cast<std::size_t>(std::ceil(m_parameters.rows*m_parameters.reso/input_param.plane_resolution));
+    std::size_t plane_cols = static_cast<std::size_t>(std::ceil(m_parameters.cols*m_parameters.reso/input_param.plane_resolution));
     std::vector<PlaneParameters> plane_grid (plane_cols*plane_rows);
     std::vector<GridPlane> grid (m_parameters.rows*m_parameters.cols);
     for (const auto& point: *labelled_cloud)
