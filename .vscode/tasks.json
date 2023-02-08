@@ -1,0 +1,38 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "DebugBuild",
+            "command": "/usr/local/bin/cmake",
+            "args": [
+                "-GNinja",
+                "-DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DBUILD_SHARED_LIBS=Off",
+                ".."
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build" // Build result directory
+            }
+        },
+        {
+            "type": "shell",
+            "label": "Build",
+            "command": "/usr/bin/ninja",
+            "args": [
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build" // Build result directory
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "DebugBuild"
+            ]
+        }
+    ],
+    "version": "2.0.0"
+}

@@ -25,14 +25,14 @@ std::string filename = "Galen_lvl5";
 namespace GroundExtraction
 {
 
-void GridConversion(const std::vector<Grid2D::Labels>& m_grid, pcl::PointCloud<PointT>::Ptr &ground_map, pcl::PointCloud<PointT>::Ptr &obstacle_map, const pcl::PointCloud<PointT>::Ptr labelled_cloud, std::string filename, const Grid2D::ExtractionSettings& input_param)
+void GridConversion(const std::vector<Grid2D::Labels>& m_grid, pcl::PointCloud<PointT>::Ptr &ground_map, pcl::PointCloud<PointT>::Ptr &obstacle_map, const pcl::PointCloud<PointT>::Ptr labelled_cloud, std::string filename, const ExtractionSettings& input_param)
 {               
     float x_min = std::numeric_limits<float>::max(); 
     float x_max = std::numeric_limits<float>::lowest();
     float y_min = std::numeric_limits<float>::max();
     float y_max = std::numeric_limits<float>::lowest();
-    float reso = input_param.m_reso;
-    if (input_param.map_boundaries[0] == 0 || input_param.map_boundaries[1] == 0 || input_param.map_boundaries[2] == 0 || input_param.map_boundaries[3] == 0)
+    float reso = input_param.m_resolution;
+    if (input_param.map_boundaries[0] != 0 || input_param.map_boundaries[1] != 0 || input_param.map_boundaries[2] != 0 || input_param.map_boundaries[3] != 0)
     {
         x_min = input_param.map_boundaries[0];
         x_max = input_param.map_boundaries[1];
@@ -147,8 +147,8 @@ using namespace GroundExtraction;
 
 int main(int argc, char** argv)
 {    
-    Grid2D grid;
-    
+    ExtractionSettings input_param;
+
     pcl::PointCloud<PointT>::Ptr labelled_cloud (new pcl::PointCloud<PointT>);
     if (pcl::io::loadPCDFile<PointT> (filename + ".pcd", *labelled_cloud) == -1)
     {
@@ -161,32 +161,34 @@ int main(int argc, char** argv)
     {
         return 1;
     }
+    std::cout << "done";
     nlohmann::json settingsJson = nlohmann::json::parse(settingsF);
     
-    grid.input_param.map_boundaries[0] = settingsJson["grid_parameters"][0];
-    grid.input_param.map_boundaries[1] = settingsJson["grid_parameters"][1];
-    grid.input_param.map_boundaries[2] = settingsJson["grid_parameters"][2];
-    grid.input_param.map_boundaries[3] = settingsJson["grid_parameters"][3];
-    grid.input_param.m_reso = settingsJson["grid_resolution"].get<float>();
-    grid.input_param.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
-    grid.input_param.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();
-    grid.input_param.MSEmax = settingsJson["plane_MSE_threshold"].get<double>();
-    grid.input_param.plane_ground = settingsJson["distance_from_plane"].get<float>();
-    grid.input_param.plane_offset = settingsJson["plane_offset"].get<float>();
-    grid.input_param.plane_reso = settingsJson["plane_resolution"].get<float>();
-    grid.input_param.confidence_label = settingsJson["confidence_label"].get<float>();
-    grid.input_param.confidence_zaxis = settingsJson["confidence_zaxis"].get<float>();   
-    grid.input_param.confidence_plane = settingsJson["confidence_plane"].get<float>();
-    grid.input_param.confidence_threshold = settingsJson["probability_threshold"].get<float>();
+    input_param.map_boundaries[0] = settingsJson["grid_parameters"][0];
+    input_param.map_boundaries[1] = settingsJson["grid_parameters"][1];
+    input_param.map_boundaries[2] = settingsJson["grid_parameters"][2];
+    input_param.map_boundaries[3] = settingsJson["grid_parameters"][3];
+    input_param.m_resolution = settingsJson["grid_resolution"].get<float>();
+    input_param.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
+    input_param.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();
+    input_param.MSEmax = settingsJson["plane_MSE_threshold"].get<double>();
+    input_param.plane_ground = settingsJson["distance_from_plane"].get<float>();
+    input_param.plane_offset = settingsJson["plane_offset"].get<float>();
+    input_param.plane_resolution = settingsJson["plane_resolution"].get<float>();
+    input_param.confidence_label = settingsJson["confidence_label"].get<float>();
+    input_param.confidence_zaxis = settingsJson["confidence_zaxis"].get<float>();   
+    input_param.confidence_plane = settingsJson["confidence_plane"].get<float>();
+    input_param.confidence_threshold = settingsJson["probability_threshold"].get<float>();
+    std::cout << "settingsjson done";
     
-    
-    Extract(labelled_cloud, grid.input_param, grid.m_grid);
-
 
     pcl::PointCloud<PointT>::Ptr ground_map (new pcl::PointCloud<PointT>);
     pcl::PointCloud<PointT>::Ptr obstacle_map (new pcl::PointCloud<PointT>);
-    GridConversion(grid.m_grid, ground_map, obstacle_map, labelled_cloud, filename, grid.input_param);
     
+    const auto start = std::chrono::high_resolution_clock::now();
+
+    GridConversion(Extract(labelled_cloud, input_param).m_grid, ground_map, obstacle_map, labelled_cloud, filename, input_param);
+
     pcl::visualization::PCLVisualizer::Ptr viewer;
     viewer = GridVis(filename, labelled_cloud, ground_map, obstacle_map);
 

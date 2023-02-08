@@ -9,7 +9,8 @@ namespace GroundExtraction
 
 using PointT = pcl::PointXYZL;
 
-Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const Grid2D::ExtractionSettings& input_param, std::vector<Grid2D::Labels>& m_grid);
+// We modify the provided cloud for performance reasons.
+Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSettings& input_param);
 
 
 

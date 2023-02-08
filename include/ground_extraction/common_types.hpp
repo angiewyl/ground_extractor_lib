@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 #include <cstdint>
 
@@ -11,35 +12,39 @@ namespace GroundExtraction
 class Grid2D
 {
 public:
-enum class Labels : std::uint8_t
-{
-    Unknown,
-    Obstacle,
-    Unoccupied
+    enum class Labels : std::uint8_t
+    {
+        Unknown,
+        Obstacle,
+        Unoccupied
+    };
+    struct GridParameters
+    {
+        std::size_t cols;
+        std::size_t rows;
+        float reso;
+        std::array<float,2> origin; // (x,y), this origin is placed at xmin, ymax
+    };
+
+    GridParameters m_parameters;
+    std::vector<Labels> m_grid;
 };
 
-std::vector<Labels> m_grid;
 
 struct ExtractionSettings
 {
-    float map_boundaries[4];
-    float m_reso;
+    std::array<float, 4> map_boundaries{};
+    float m_resolution{0.16};
     float zaxis_ground;
     float zaxis_ceil;
     double MSEmax;
     float plane_ground;
     float plane_offset;
-    float plane_reso;
+    float plane_resolution{0.8}; 
     float confidence_label;
     float confidence_zaxis;
     float confidence_plane;
     float confidence_threshold; 
 };
-
-ExtractionSettings input_param;
-
-};
-
-
 
 }

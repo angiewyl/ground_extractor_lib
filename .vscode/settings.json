@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.ipp": "cpp",
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "system_error": "cpp",
+        "array": "cpp",
+        "limits": "cpp",
+        "random": "cpp",
+        "ranges": "cpp",
+        "functional": "cpp",
+        "type_traits": "cpp",
+        "chrono": "cpp"
+    }
+}
