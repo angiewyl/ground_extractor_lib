@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <string>
 #include <vector>
 #include <cstdint>
 
@@ -33,7 +34,9 @@ public:
 
 struct ExtractionSettings
 {
-    std::array<float, 4> map_boundaries{};
+    std::string filename;
+    // map_boundaries in the form (xmin, xmax, ymin, ymax)
+    std::array<float, 4> map_boundaries{std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest()};
     float m_resolution{0.16};
     float zaxis_ground;
     float zaxis_ceil;
