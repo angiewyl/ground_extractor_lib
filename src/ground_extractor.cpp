@@ -45,6 +45,7 @@ Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSett
     std::cout << "time taken (CONFIDENCE): " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - confidence).count() << "micros." << std::endl;
 #endif
     GridDilation(gridOut.m_grid, gridOut.m_parameters);
+    ExportPNG(gridOut.m_grid, gridOut.m_parameters, input_param.filename);
 
     return gridOut;
 }

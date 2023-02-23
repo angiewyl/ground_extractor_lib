@@ -32,7 +32,7 @@ void GridConversion(const std::vector<Grid2D::Labels>& m_grid, pcl::PointCloud<P
     float y_min = std::numeric_limits<float>::max();
     float y_max = std::numeric_limits<float>::lowest();
     float reso = input_param.m_resolution;
-    if (input_param.map_boundaries[0] != 0 || input_param.map_boundaries[1] != 0 || input_param.map_boundaries[2] != 0 || input_param.map_boundaries[3] != 0)
+    if (input_param.map_boundaries[0] != x_min || input_param.map_boundaries[1] != x_max || input_param.map_boundaries[2] != y_min || input_param.map_boundaries[3] != y_max)
     {
         x_min = input_param.map_boundaries[0];
         x_max = input_param.map_boundaries[1];

@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <string>
 // #include <limits>
 // #include <Eigen/Dense>
 
@@ -28,6 +29,7 @@ void ConfidenceExtraction(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, cons
 
 void GridDilation(std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridParameters& m_parameters);
 
+void ExportPNG(const std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridParameters& m_parameters, const std::string& filename);
 
 
 

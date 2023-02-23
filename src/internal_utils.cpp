@@ -65,7 +65,7 @@ void defineGridBounds(pcl::PointCloud<PointT>::Ptr& labelled_cloud, Grid2D::Grid
     float x_max = std::numeric_limits<float>::lowest(); 
     float y_min = std::numeric_limits<float>::max();
     float y_max = std::numeric_limits<float>::lowest();
-    if (input_param.map_boundaries[0] != 0 || input_param.map_boundaries[1] != 0 || input_param.map_boundaries[2] != 0 || input_param.map_boundaries[3] != 0 )
+    if (input_param.map_boundaries[0] != x_min || input_param.map_boundaries[1] != x_max || input_param.map_boundaries[2] != y_min || input_param.map_boundaries[3] != y_max)
     {
         x_min = input_param.map_boundaries[0];
         x_max = input_param.map_boundaries[1];
@@ -224,6 +224,33 @@ void GridDilation(std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridParamet
     cv::Mat opening_dst;
     cv::morphologyEx(src, opening_dst, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2,2)));
     src = opening_dst;
+    return;
+}
+
+void ExportPNG(const std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridParameters& m_parameters, const std::string& filename)
+{ 
+    cv::Mat img(static_cast<int>(m_parameters.rows), static_cast<int>(m_parameters.cols), CV_8U, Scalar(200));
+    
+    for (std::size_t i=0; i<m_grid.size(); i++)
+    {
+        int row_num = static_cast<int>(floor(i/m_parameters.cols));
+        int col_num = static_cast<int>(i- y*m_parameters.cols);
+        if (m_grid[i] == Grid2D::Labels::Unoccupied)
+        {
+            img.at<uchar>(row_num, col_num) = 255;
+        }
+        
+        if (m_grid[i] == Grid2D::Labels::Unknown)
+        {
+            img.at<uchar>(row_num, col_num) = 200;
+        }
+        
+        if (m_grid[i] == Grid2D::Labels::Obstacle)
+        {
+            img.at<uchar>(row_num, col_num) = 0;
+        }
+    }
+    imwrite(filename + ".png", img);
     return;
 }
 
