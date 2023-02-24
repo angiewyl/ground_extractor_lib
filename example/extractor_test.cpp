@@ -19,8 +19,8 @@ unsigned int text_id = 0;
 using PointT = pcl::PointXYZL;
 
 // std::string filename = "Pixel_Lvl3_2609";
-// std::string filename = "Galen_lvl5";
-std::string filename = "pixel_park2_20220103";
+std::string filename = "Galen_lvl5";
+// std::string filename = "pixel_park2_20220103";
 
 namespace GroundExtraction
 {
@@ -164,10 +164,11 @@ int main(int argc, char** argv)
     std::cout << "done";
     nlohmann::json settingsJson = nlohmann::json::parse(settingsF);
     
-    input_param.map_boundaries[0] = settingsJson["grid_parameters"][0];
-    input_param.map_boundaries[1] = settingsJson["grid_parameters"][1];
-    input_param.map_boundaries[2] = settingsJson["grid_parameters"][2];
-    input_param.map_boundaries[3] = settingsJson["grid_parameters"][3];
+    input_param.map_boundaries[0] = settingsJson["x_min"].get<float>();
+    input_param.map_boundaries[1] = settingsJson["x_max"].get<float>();
+    input_param.map_boundaries[2] = settingsJson["y_min"].get<float>();
+    input_param.map_boundaries[3] = settingsJson["y_max"].get<float>();
+    input_param.filename = filename + "_2D";
     input_param.m_resolution = settingsJson["grid_resolution"].get<float>();
     input_param.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
     input_param.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();

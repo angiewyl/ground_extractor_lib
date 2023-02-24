@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstddef>
 #include <pcl/features/feature.h>
+#include <opencv2/imgcodecs.hpp>
 
 namespace GroundExtraction
 {
@@ -229,12 +230,12 @@ void GridDilation(std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridParamet
 
 void ExportPNG(const std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridParameters& m_parameters, const std::string& filename)
 { 
-    cv::Mat img(static_cast<int>(m_parameters.rows), static_cast<int>(m_parameters.cols), CV_8U, Scalar(200));
+    cv::Mat img(static_cast<int>(m_parameters.rows), static_cast<int>(m_parameters.cols), CV_8U, cv::Scalar(200));
     
     for (std::size_t i=0; i<m_grid.size(); i++)
     {
         int row_num = static_cast<int>(floor(i/m_parameters.cols));
-        int col_num = static_cast<int>(i- y*m_parameters.cols);
+        int col_num = static_cast<int>(i- row_num*m_parameters.cols);
         if (m_grid[i] == Grid2D::Labels::Unoccupied)
         {
             img.at<uchar>(row_num, col_num) = 255;
@@ -250,7 +251,7 @@ void ExportPNG(const std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridPara
             img.at<uchar>(row_num, col_num) = 0;
         }
     }
-    imwrite(filename + ".png", img);
+    cv::imwrite(filename + ".png", img);
     return;
 }
 
