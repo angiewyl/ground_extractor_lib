@@ -9,6 +9,8 @@ namespace GroundExtraction
 
 using PointT = pcl::PointXYZL;
 
+ExtractionSettings GenerateSettingsFromPreset(ExtractionSettingPreset preset);
+
 // We modify the provided cloud for performance reasons.
 Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSettings& input_param);
 

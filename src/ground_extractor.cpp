@@ -11,9 +11,15 @@ namespace GroundExtraction
 
 typedef pcl::PointXYZL PointT;
 
+ExtractionSettings GenerateSettingsFromPreset(ExtractionSettingPreset preset)
+{
+    ExtractionSettings input_param;
+    return input_param;
+}
+
 Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSettings& input_param)
 {      
-    // GridParameters grid_parameters;
+    OutlierRemoval(labelled_cloud);
     Grid2D gridOut;
 #if defined(WITH_PROFILING_PRINTOUTS)    
     const auto start = std::chrono::high_resolution_clock::now();
@@ -36,7 +42,7 @@ Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSett
     std::cout << "time taken (LABEL & ZAXIS): " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - labelnzaxis).count() << "micros." << std::endl;
 #endif
 
-    PlaneMethod(labelled_cloud, num_obstacle_plane, gridOut.m_parameters, input_param);
+    PlaneMethod(labelled_cloud, num_obstacle_plane, num_points, gridOut.m_parameters, input_param);
 #if defined(WITH_PROFILING_PRINTOUTS)
     const auto confidence = std::chrono::high_resolution_clock::now();
 #endif
@@ -45,7 +51,7 @@ Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSett
     std::cout << "time taken (CONFIDENCE): " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - confidence).count() << "micros." << std::endl;
 #endif
     GridDilation(gridOut.m_grid, gridOut.m_parameters);
-    ExportPNG(gridOut.m_grid, gridOut.m_parameters, input_param.filename);
+    ExportPNG(gridOut.m_grid, gridOut.m_parameters, input_param.output_filename);
 
     return gridOut;
 }

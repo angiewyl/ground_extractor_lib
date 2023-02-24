@@ -32,18 +32,24 @@ public:
     std::vector<Labels> m_grid;
 };
 
+enum class ExtractionSettingPreset
+{
+    DEFAULT,
+    SLOPY_TERRAIN,
+    FLAT_TERRAIN
+};
 
 struct ExtractionSettings
 {
-    std::string filename;
+    std::string output_filename; // Should be an image output file
     // map_boundaries in the form (xmin, xmax, ymin, ymax)
     std::array<float, 4> map_boundaries{std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest()};
     float m_resolution{0.16};
-    float zaxis_ground;
-    float zaxis_ceil;
-    double MSEmax;
-    float plane_ground;
-    float plane_offset;
+    float zaxis_ground{0.2};
+    float zaxis_ceil{1.2f};
+    double MSEmax{0.03};
+    float plane_ground{0};
+    float plane_offset{1.0f};
     float plane_resolution{0.8}; 
     float confidence_label;
     float confidence_zaxis;

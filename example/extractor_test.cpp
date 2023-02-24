@@ -18,10 +18,6 @@
 unsigned int text_id = 0;
 using PointT = pcl::PointXYZL;
 
-// std::string filename = "Pixel_Lvl3_2609";
-std::string filename = "Galen_lvl5";
-// std::string filename = "pixel_park2_20220103";
-
 namespace GroundExtraction
 {
 
@@ -147,15 +143,7 @@ using namespace GroundExtraction;
 
 int main(int argc, char** argv)
 {    
-    ExtractionSettings input_param;
-
-    pcl::PointCloud<PointT>::Ptr labelled_cloud (new pcl::PointCloud<PointT>);
-    if (pcl::io::loadPCDFile<PointT> (filename + ".pcd", *labelled_cloud) == -1)
-    {
-        PCL_ERROR ("Couldn't read file \n");
-        return (-1);
-    }
-    
+    ExtractionSettings input_param; 
     ifstream settingsF("/home/joel/ground_extration_lib/example/settings.json");
     if (!settingsF.is_open()) 
     {
@@ -163,19 +151,30 @@ int main(int argc, char** argv)
     }
     std::cout << "done";
     nlohmann::json settingsJson = nlohmann::json::parse(settingsF);
+    std::string filename = settingsJson["filename"].get<std::string>();
+    pcl::PointCloud<PointT>::Ptr labelled_cloud (new pcl::PointCloud<PointT>);
+    if (pcl::io::loadPCDFile<PointT> (filename + ".pcd", *labelled_cloud) == -1)
+    {
+        PCL_ERROR ("Couldn't read file \n");
+        return (-1);
+    }
     
-    input_param.map_boundaries[0] = settingsJson["x_min"].get<float>();
-    input_param.map_boundaries[1] = settingsJson["x_max"].get<float>();
-    input_param.map_boundaries[2] = settingsJson["y_min"].get<float>();
-    input_param.map_boundaries[3] = settingsJson["y_max"].get<float>();
-    input_param.filename = filename + "_2D";
-    input_param.m_resolution = settingsJson["grid_resolution"].get<float>();
-    input_param.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
-    input_param.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();
-    input_param.MSEmax = settingsJson["plane_MSE_threshold"].get<double>();
-    input_param.plane_ground = settingsJson["distance_from_plane"].get<float>();
-    input_param.plane_offset = settingsJson["plane_offset"].get<float>();
-    input_param.plane_resolution = settingsJson["plane_resolution"].get<float>();
+   
+    if (filename == "Galen_lvl5")
+    {
+        input_param.map_boundaries[0] = settingsJson["x_min"].get<float>();
+        input_param.map_boundaries[1] = settingsJson["x_max"].get<float>();
+        input_param.map_boundaries[2] = settingsJson["y_min"].get<float>();
+        input_param.map_boundaries[3] = settingsJson["y_max"].get<float>();
+    }
+    input_param.output_filename = filename + "_2D";
+    // input_param.m_resolution = settingsJson["grid_resolution"].get<float>();
+    // input_param.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
+    // input_param.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();
+    // input_param.MSEmax = settingsJson["plane_MSE_threshold"].get<double>();
+    // input_param.plane_ground = settingsJson["distance_from_plane"].get<float>();
+    // input_param.plane_offset = settingsJson["plane_offset"].get<float>();
+    // input_param.plane_resolution = settingsJson["plane_resolution"].get<float>();
     input_param.confidence_label = settingsJson["confidence_label"].get<float>();
     input_param.confidence_zaxis = settingsJson["confidence_zaxis"].get<float>();   
     input_param.confidence_plane = settingsJson["confidence_plane"].get<float>();
