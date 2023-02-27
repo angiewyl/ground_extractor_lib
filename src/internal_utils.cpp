@@ -1,6 +1,7 @@
 #include "internal_utils.hpp"
 #include <cmath>
 #include <cstddef>
+#include <opencv2/core/types.hpp>
 #include <pcl/features/feature.h>
 #include <opencv2/imgcodecs.hpp>
 #include <pcl/filters/statistical_outlier_removal.h>
@@ -20,20 +21,19 @@ std::size_t findGridPosition(float x, float y, const std::array<float,2> origin,
     return (static_cast<std::size_t>(celly*cols + cellx));
 }
 
-void planeFitting(const std::vector<std::array<float, 3>>& ground_points, std::array<double,3>& plane_coefficients)
+void planeFitting(const std::vector<std::array<float, 3>>& ground_points, std::array<float,3>& plane_coefficients)
 {
     float XXsum = 0; float XYsum = 0; float YYsum = 0; float XZsum = 0; float YZsum = 0;
     float Xavg = 0; float Yavg = 0; float Zavg = 0;
-    int count = 0;
-    for (int i=0; i<ground_points.size(); i++)
+    for (size_t i=0; i<ground_points.size(); i++)
     {
         Xavg += ground_points[i][0];
         Yavg += ground_points[i][1];
         Zavg += ground_points[i][2];
-        count ++;
     }
-    Xavg /= count; Yavg /= count; Zavg /= count;
-    for (int i=0; i<ground_points.size(); i++)
+    float recpNumPts = 1.0f / static_cast<float>(ground_points.size());
+    Xavg *= recpNumPts; Yavg *= recpNumPts; Zavg *= recpNumPts;
+    for (size_t i=0; i<ground_points.size(); i++)
     {
         float x = ground_points[i][0];
         float y = ground_points[i][1];
@@ -45,12 +45,12 @@ void planeFitting(const std::vector<std::array<float, 3>>& ground_points, std::a
         XZsum += ((z - Zavg)*(x - Xavg));
         YZsum += ((z - Zavg)*(y - Yavg));
     }
-    plane_coefficients[0] = static_cast<double>((YYsum*XZsum - XYsum*YZsum)/(XXsum*YYsum - XYsum*XYsum));
+    plane_coefficients[0] = static_cast<float>((YYsum*XZsum - XYsum*YZsum)/(XXsum*YYsum - XYsum*XYsum));
     plane_coefficients[1] = (XXsum*YZsum - XYsum*XZsum)/(XXsum*YYsum - XYsum*XYsum);
     plane_coefficients[2] = Zavg - plane_coefficients[0]*Xavg - plane_coefficients[1]*Yavg;
     return;
 }
-void calculateMSE(const std::vector<std::array<float,3>>& ground_points, const std::array<double,3>& plane_coefficients, double& mean_squared_errors)
+void calculateMSE(const std::vector<std::array<float,3>>& ground_points, const std::array<float,3>& plane_coefficients, float& mean_squared_errors)
 {
     mean_squared_errors = 0;
     for (int i=0; i<ground_points.size(); i++)
@@ -134,13 +134,13 @@ struct PlaneParameters
 {
     std::vector<std::array<float,3>> grid_points;
     std::vector<std::array<float,3>> ground_points;
-    std::array<double,3> plane_coefficients;
-    double mean_squared_errors;
+    std::array<float,3> plane_coefficients;
+    float mean_squared_errors;
 };
 
 struct GridPlane
 {
-    std::vector<std::array<double,7>> all_points;
+    std::vector<std::array<float,7>> all_points;
 };
 
 void PlaneMethod(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::vector<std::uint8_t>& num_obstacle_plane, const std::vector<std::uint8_t>& num_points, const Grid2D::GridParameters& m_parameters, const ExtractionSettings& input_param)
@@ -156,16 +156,18 @@ void PlaneMethod(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::vector<s
     for (const auto& point: *labelled_cloud)
     {
         std::size_t plane_position = findGridPosition(point.x, point.y, m_parameters.origin, input_param.plane_resolution, plane_cols);
-        plane_grid[plane_position].grid_points.push_back({point.x, point.y, point.z});
+        std::array<float, 3> curPt = {point.x, point.y, point.z};
+        plane_grid[plane_position].grid_points.push_back(curPt);
         if (point.label != 0)
         {
-            plane_grid[plane_position].ground_points.push_back({point.x, point.y, point.z});
+            plane_grid[plane_position].ground_points.push_back(curPt);
         }
     }
 
     // #pragma omp parallel for num_threads(4)
     for (std::size_t i=0; i<plane_grid.size(); i++)
     {
+        std::cout << plane_grid[i].ground_points.size() << ", ";
         if (plane_grid[i].ground_points.size() > 5)
         {
             planeFitting(plane_grid[i].ground_points, plane_grid[i].plane_coefficients);
@@ -198,13 +200,13 @@ void PlaneMethod(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::vector<s
             float c = grid[i].all_points[k][5];
             float MSE = grid[i].all_points[k][6];
             float point_dist = ((a*x + b*y - z + c)/sqrt(a*a + b*b + 1));
-            if (point_dist > input_param.plane_ground && point_dist < (input_param.plane_ground + input_param.plane_offset) && MSE/num_points[i]< input_param.MSEmax)
+            if (point_dist > input_param.plane_ground && point_dist < (input_param.plane_ground + input_param.plane_offset) && MSE < input_param.MSEmax)
             {
                 num_obstacle_plane[i] += 1;
             }
-            if (MSE/num_points[i] > input_param.MSEmax)
+            if (MSE > input_param.MSEmax)
             {
-                num_obstacle_plane[i]+=1;
+                num_obstacle_plane[i] += 1;
             }
         }
     }
@@ -212,6 +214,11 @@ void PlaneMethod(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::vector<s
     std::cout << "time taken (PLANE): " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - plane).count() << "micros." << std::endl;
 #endif
 }
+
+
+
+
+
 void ConfidenceExtraction(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, const ExtractionSettings& input_param, std::vector<Grid2D::Labels>& m_grid, const std::vector<std::uint8_t>& num_points, const std::vector<std::uint8_t>& num_obstacle_labels, const std::vector<std::uint8_t>& num_obstacle_plane, const std::vector<std::uint8_t>& num_obstacle_zaxis)
 {
     for (int i=0; i<static_cast<int>(num_points.size()); i++)

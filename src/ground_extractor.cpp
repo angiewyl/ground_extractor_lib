@@ -19,6 +19,8 @@ ExtractionSettings GenerateSettingsFromPreset(ExtractionSettingPreset preset)
 
 Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSettings& input_param)
 {      
+    // add error if point cloud not labelled
+    
     OutlierRemoval(labelled_cloud);
     Grid2D gridOut;
 #if defined(WITH_PROFILING_PRINTOUTS)    

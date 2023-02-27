@@ -171,7 +171,7 @@ int main(int argc, char** argv)
     // input_param.m_resolution = settingsJson["grid_resolution"].get<float>();
     // input_param.zaxis_ground = settingsJson["zaxis_max_height"].get<float>();
     // input_param.zaxis_ceil = settingsJson["zaxis_ground_height"].get<float>();
-    // input_param.MSEmax = settingsJson["plane_MSE_threshold"].get<double>();
+    // input_param.MSEmax = settingsJson["plane_MSE_threshold"].get<float>();
     // input_param.plane_ground = settingsJson["distance_from_plane"].get<float>();
     // input_param.plane_offset = settingsJson["plane_offset"].get<float>();
     // input_param.plane_resolution = settingsJson["plane_resolution"].get<float>();

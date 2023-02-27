@@ -47,10 +47,10 @@ struct ExtractionSettings
     float m_resolution{0.16};
     float zaxis_ground{0.2};
     float zaxis_ceil{1.2f};
-    double MSEmax{0.03};
+    float MSEmax{100};
     float plane_ground{0};
     float plane_offset{1.0f};
-    float plane_resolution{0.8}; 
+    float plane_resolution{1.0f}; 
     float confidence_label;
     float confidence_zaxis;
     float confidence_plane;
