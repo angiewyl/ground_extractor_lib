@@ -54,7 +54,8 @@ struct ExtractionSettings
     float confidence_label;
     float confidence_zaxis;
     float confidence_plane;
-    float confidence_threshold; 
+    float confidence_threshold;
+    float m_inflation_dis;
 };
 
 

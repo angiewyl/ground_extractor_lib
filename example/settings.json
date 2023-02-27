@@ -1,14 +1,18 @@
 {
-    ".filename" : "Pixel_Lvl3_2609",
+    ".filename" : "HPV_16_12_22_proc_whole_with_normal",
+    "_filename" : "Pixel_Lvl3_2609",
     "/filename" : "Galen_lvl5",
-    "filename" : "pixel_park2_20220103",
-    "_filename" : "pixel_lvl1_20220103",
+    "3filename" : "pixel_park2_20220103",
+    "2filename" : "pixel_lvl1_20220103",
+    "1filename" : "Expo-max-atria-lvl2-take2_proc",  
+    "filename" : "waterpoint_lvl1_proc",
+    "inflation_dis" : 0.5,
     "x_min" : -55,
     "x_max" : 60,
     "y_min" : -23,
     "y_max" : 25,
-    "confidence_label" : 0,
-    "confidence_zaxis" : 0,
-    "confidence_plane" : 1,
-    "probability_threshold" : 1.95
+    "confidence_label" : 3,
+    "confidence_zaxis" : 5,
+    "confidence_plane" : 2,
+    "probability_threshold" : 2
 }

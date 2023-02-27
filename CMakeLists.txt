@@ -5,6 +5,7 @@ project(dash_labelled_ground_extraction)
 # option(WITH_PROFILING_PRINTOUTS "Print out stuff" ON)
 
 find_package(PCL CONFIG REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(OpenCV CONFIG REQUIRED)
 find_package(OpenMP REQUIRED)
@@ -19,6 +20,7 @@ target_link_libraries(dash_labelled_ground_extraction
 PUBLIC
   ${PCL_LIBRARIES}
   ${OpenCV_LIBS}
+  Eigen3::Eigen
 PRIVATE
   spdlog::spdlog
   OpenMP::OpenMP_CXX

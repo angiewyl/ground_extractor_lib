@@ -27,6 +27,8 @@ void LabelnZaxisMethod(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::ve
 
 void PlaneMethod(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::vector<std::uint8_t>& num_obstacle_plane, const std::vector<std::uint8_t>& num_points, const Grid2D::GridParameters& m_parameters, const ExtractionSettings& input_param);
 
+void PlaneMethod2(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, std::vector<std::uint8_t>& num_obstacle_plane, const Grid2D::GridParameters& m_parameters, const ExtractionSettings& input_param);
+
 void ConfidenceExtraction(pcl::PointCloud<PointT>::ConstPtr labelled_cloud, const ExtractionSettings& input_param, std::vector<Grid2D::Labels>& m_grid, const std::vector<std::uint8_t>& num_points, const std::vector<std::uint8_t>& num_obstacle_labels, const std::vector<std::uint8_t>& num_obstacle_plane, const std::vector<std::uint8_t>& num_obstacle_zaxis);
 
 void GridDilation(std::vector<Grid2D::Labels>& m_grid, const Grid2D::GridParameters& m_parameters);

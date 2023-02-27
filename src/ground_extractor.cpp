@@ -19,8 +19,6 @@ ExtractionSettings GenerateSettingsFromPreset(ExtractionSettingPreset preset)
 
 Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSettings& input_param)
 {      
-    // add error if point cloud not labelled
-    
     OutlierRemoval(labelled_cloud);
     Grid2D gridOut;
 #if defined(WITH_PROFILING_PRINTOUTS)    
@@ -45,6 +43,7 @@ Grid2D Extract(pcl::PointCloud<PointT>::Ptr labelled_cloud, const ExtractionSett
 #endif
 
     PlaneMethod(labelled_cloud, num_obstacle_plane, num_points, gridOut.m_parameters, input_param);
+    PlaneMethod2(labelled_cloud, num_obstacle_plane, gridOut.m_parameters, input_param);
 #if defined(WITH_PROFILING_PRINTOUTS)
     const auto confidence = std::chrono::high_resolution_clock::now();
 #endif
